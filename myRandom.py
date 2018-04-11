@@ -18,7 +18,7 @@ def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
 
         # enter, file is not exist or is not correct
         while len(nodeList) < nodeNumber:
-            n = randint(0, IdSize)
+            n = randint(0, IdSize-1)
             if n not in nodeList:
                 nodeList.append(n)
             # else: 

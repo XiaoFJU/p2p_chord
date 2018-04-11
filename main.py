@@ -1,4 +1,5 @@
 import os
+import sys
 import operator
 from random import randint
 from math import log
@@ -35,9 +36,31 @@ if __name__ == "__main__":
     print("\n===========Q1=============")
 
     count = dict()
-    # get one node from unsort list (ans always same)
-    
-    node = chord.chord[nodes[0]]
+
+# ##### debug
+#     nodes = sorted(nodes)
+#     while 1:
+#         x = input("$ 第幾個node: ")
+#         node_index = nodes[int(x)]
+#         node = chord.chord[ node_index ]
+#         print("start node:", node)
+#         print(node.finger_table)
+#         print("前一個 ", node.predecessor)
+#         print("後一個 ", node.successor)
+
+
+#         key = input("$ 找哪個: ")
+#         addr, record = node.search(int(key), [])
+
+#         print("find", key, ">> ")
+#         print("\tnode:", addr, " record:", record, "\n\n")
+
+# #####
+
+
+    # no matter what node start, get same answer
+    node_index = nodes[ randint(0, NODE_NUMBER-1) ]
+    node = chord.chord[ node_index ]
     print( "start node:", node )
     for i in range(1,11):
         file_count = i*10 * NODE_NUMBER
@@ -49,11 +72,11 @@ if __name__ == "__main__":
             count[j] = 0
 
         for _ in range(file_count):
-            file_key = randint(0, ID_SIZE)            
+            file_key = randint(0, ID_SIZE-1)          
             addr, record = node.search(file_key, [])
 
-            print("find", file_key, ">> ")
-            print("\tnode:", addr, " record:", record)
+            # print("find", file_key, ">> ")
+            # print("\tnode:", addr, " record:", record)
 
             # use random list `nodes` mapping 
             count[addr] += 1
@@ -80,7 +103,7 @@ if __name__ == "__main__":
     for i in nodes:
         node = chord.chord[ i ]
         for j in range(100):
-            k = randint(0, ID_SIZE)
+            k = randint(0, ID_SIZE-1)
             addr, record = node.search(k, [])            
 
             hops_num = len(record)-1

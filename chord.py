@@ -94,17 +94,21 @@ class Node:
 
     # return a address of the node which manage the file
     def search(self, target, record=[]):
+        print("[debug] targe:", target, " now:", self.address)
+        print(self.finger_table)
         # record hop
         record.append(self.address)
 
-# debug
-        if (len(record) > 30): 
+        size = self.parent_chord.SIZE
+        TARGET = target % size
+
+#  debug
+        if (len(record) > 32): 
             print(">>> not good at find [", target, "]")
             print(record)
             return None, None
-# end debug
+#  end debug
 
-        size = self.parent_chord.SIZE
         # if at self cover range...
         predecessor_address = self.predecessor.address
         if self.address > predecessor_address:
@@ -120,10 +124,15 @@ class Node:
             if address == target:
                 return address, record 
 
+        # curry target
+        if self.address > target:
+            print('[debug]', target, "=>", target+size)            
+            target += target + size
+
         # check next 
         successor_address = self.successor.address
         
-        if  self.address > successor_address:
+        if self.address > successor_address:
             # it mean carry
             successor_address += size
         if successor_address > target:
@@ -132,24 +141,25 @@ class Node:
             record.append(successor_address)
             return successor_address, record
 
-        # search finger table and find which none we should start from 
+        # search finger table and find which node we should start from 
         previous_address = None
         for key, address in self.finger_table.items():
             # recover, (42+16)%64 => 42+16
             if self.address > address:
+                print('[debug]', address, "=>", address+size)
                 address += size
 
             if address > target:
+                print('[debug] match!', address, ">", target)                
                 # continue to query next node
-                if previous_address is None:
-                    previous_address = address % size
-                n = self.get_node(previous_address)
-                return n.search(target, record)
-            previous_address = address % size
+                n = self.get_node(previous_address%size)
+                return n.search(TARGET, record)
 
-        # it mean last one 
-        n = self.get_node(previous_address)
-        return n.search(target, record)
+            previous_address = address
+
+        # it mean last one
+        n = self.get_node(previous_address%size)
+        return n.search(TARGET, record)
 
 ### 我忘記這個幹麻的了
     # find target from "the node"
@@ -186,6 +196,6 @@ if __name__ == "__main__":
     
     # ls = [0]*len(nodes)
     # for i in range(10000):
-    #     k = randint(0, 2**6)
+    #     k = randint(0, 2**6-1)
     #     n, record = c.chord.items.search(k, [])
     #     ls[ nodes.index(n) ]
