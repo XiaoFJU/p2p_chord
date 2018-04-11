@@ -1,5 +1,9 @@
 from collections import OrderedDict
 from progressBar import ProgressBar
+from log import Log
+
+ENABLE_LOG = False
+logs = Log(ENABLE_LOG)
 
 class Chord:
     def __init__(self, int_nodeList, ID_SIZE):
@@ -93,109 +97,88 @@ class Node:
         return str(self.address)
 
     # return a address of the node which manage the file
-    def search(self, target, record=[]):
-        print("[debug] targe:", target, " now:", self.address)
-        print(self.finger_table)
-        # record hop
-        record.append(self.address)
+    def search(self, target, record):
+        logs.log("\tenter",self.address)
+        chrod_size = self.parent_chord.SIZE
 
-        size = self.parent_chord.SIZE
-        TARGET = target % size
+        # record now
+        record.append(self.address)
 
 #  debug
         if (len(record) > 32): 
-            print(">>> not good at find [", target, "]")
-            print(record)
+            logs.debug(">>> not good at find [", target, "]")
+            logs.debug(record)
             return None, None
 #  end debug
 
-        # if at self cover range...
-        predecessor_address = self.predecessor.address
-        if self.address > predecessor_address:
-            # check range
-            if self.address >= target and target > predecessor_address:
-                return self.address, record
-        else:
-            if self.address+size >= target+size and target+size > predecessor_address:
-                return self.address, record   
+        # check match
+        logs.debug("[self]", end=" ")        
+        if self.at_cover_range(target):
+            return self.address, record
 
         # target file is in finger table
         for address in self.finger_table.values():
             if address == target:
-                return address, record 
+                return address, record  
 
-        # curry target
-        if self.address > target:
-            print('[debug]', target, "=>", target+size)            
-            target += target + size
-
-        # check next 
-        successor_address = self.successor.address
-        
-        if self.address > successor_address:
-            # it mean carry
-            successor_address += size
-        if successor_address > target:
-            # print( "at {}, {} > {}".format(self.address,successor_address,target) )
-            successor_address %= size
-            record.append(successor_address)
-            return successor_address, record
-
-        # search finger table and find which node we should start from 
+        # search next node form finger table
         previous_address = None
         for key, address in self.finger_table.items():
-            # recover, (42+16)%64 => 42+16
-            if self.address > address:
-                print('[debug]', address, "=>", address+size)
-                address += size
+            if previous_address is not None:
+                A = address
+                B = previous_address
 
-            if address > target:
-                print('[debug] match!', address, ">", target)                
-                # continue to query next node
-                n = self.get_node(previous_address%size)
-                return n.search(TARGET, record)
+                # check 
+                logs.debug("[fing]", end=" ")
+                if at_range(A, B, target):
+                    the_node = self.get_node(B) 
+                    return the_node.search(target, record)
 
             previous_address = address
 
         # it mean last one
-        n = self.get_node(previous_address%size)
-        return n.search(TARGET, record)
+        the_node =  self.get_node(previous_address)
+        return the_node.search(target, record)
 
-### 我忘記這個幹麻的了
-    # find target from "the node"
-    def find(self, target, from_address):
-        chord_list = self.parent_chord
-        
-        index_of = lambda ordered_dict, key: list(ordered_dict).index(key) 
-        now_index = index_of(chord_list, from_address)
-        # find which node should provide the file (the node is less then)
-###
+    def at_cover_range(self, target):    
+        now  = self.address
+        next = self.successor.address
+        return at_range(next, now, target)
 
     # use address, return the node
     def get_node(self, address=0):
         return self.parent_chord.chord[address]
 
 
+def at_range(A, B, target):
+    logs.log("is {} in {} to {}?".format(target, A, B), end='')
+    if A > B:
+        if B <= target and target < A:
+            logs.log("YES")                
+            return True
+    elif B > A:
+        if A > target or target >= B:
+            logs.log("YES")    
+            return True
+
+    logs.log("NO")
+    return False
+
 if __name__ == "__main__":
-    nodes = [1, 42, 8, 14, 48, 21, 32, 51, 38, 34, 59]
+    LOG_SWITCH = True
+    log = Log(LOG_SWITCH)
+
+    nodes = [1, 8, 14, 21, 32, 38, 42, 48, 51, 56]
     
     c = Chord(nodes, 2**6)
 
-    # for key, node in c.chord.items():
-    #     print("[ node", node, " ]")
-    #     print("finger_table\n\t", node.finger_table)
+    for key, node in c.chord.items():
+        print("[ node", node, " ]")
+        print("finger_table\n\t", node.finger_table)
 
-    #     target = 54
-    #     print("find", target, ">> ")
-    #     n, record = node.search(target, [])
-    #     print("\tnode:", n, " record:", record)
+        target = 54
+        print("find", target, ">> ")
+        n, record = node.search(target, [])
+        print("\tnode:", n, " record:", record)
 
-    #     print("----------")
-
-    # from random import randint
-    
-    # ls = [0]*len(nodes)
-    # for i in range(10000):
-    #     k = randint(0, 2**6-1)
-    #     n, record = c.chord.items.search(k, [])
-    #     ls[ nodes.index(n) ]
+        print("----------")

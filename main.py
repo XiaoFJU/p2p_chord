@@ -6,17 +6,23 @@ from math import log
 
 import chord
 import myRandom
+from log import Log
 from progressBar import ProgressBar
 
-# RANDOM_FILE = 'random.txt'
-# ID_SIZE = 2**32
-# NODE_NUMBER = 10000
 
-RANDOM_FILE = '100.txt'
-ID_SIZE = 2**10
-NODE_NUMBER = 100
+# static value
+RANDOM_FILE = 'random.txt'
+ID_SIZE = 2**32
+NODE_NUMBER = 10000
+ENABLE_LOG = False
+
+# RANDOM_FILE = '100.txt'
+# ID_SIZE = 2**10
+# NODE_NUMBER = 100
 
 if __name__ == "__main__":
+    logs = Log(ENABLE_LOG)
+
     # if file not exist, create it.
     nodes = myRandom.random_file(RANDOM_FILE, ID_SIZE, NODE_NUMBER)
     # get file sha1 to check the random data same 
@@ -28,7 +34,6 @@ if __name__ == "__main__":
 
     for i in sorted(nodes):
         print(i, end='')
-    print()
 
     #################################
     # Q1: 每一個節點所需負責之key值個數  #
@@ -36,27 +41,6 @@ if __name__ == "__main__":
     print("\n===========Q1=============")
 
     count = dict()
-
-# ##### debug
-#     nodes = sorted(nodes)
-#     while 1:
-#         x = input("$ 第幾個node: ")
-#         node_index = nodes[int(x)]
-#         node = chord.chord[ node_index ]
-#         print("start node:", node)
-#         print(node.finger_table)
-#         print("前一個 ", node.predecessor)
-#         print("後一個 ", node.successor)
-
-
-#         key = input("$ 找哪個: ")
-#         addr, record = node.search(int(key), [])
-
-#         print("find", key, ">> ")
-#         print("\tnode:", addr, " record:", record, "\n\n")
-
-# #####
-
 
     # no matter what node start, get same answer
     node_index = nodes[ randint(0, NODE_NUMBER-1) ]
@@ -73,10 +57,10 @@ if __name__ == "__main__":
 
         for _ in range(file_count):
             file_key = randint(0, ID_SIZE-1)          
-            addr, record = node.search(file_key, [])
+            addr, record = node.search(file_key, list())
 
-            # print("find", file_key, ">> ")
-            # print("\tnode:", addr, " record:", record)
+            logs.debug( node, "find", file_key, ">> ")
+            logs.debug("\tnode:", addr, " record:", record)
 
             # use random list `nodes` mapping 
             count[addr] += 1
