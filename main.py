@@ -25,9 +25,9 @@ if __name__ == "__main__":
 
     # if file not exist, create it.
     nodes = myRandom.random_file(RANDOM_FILE, ID_SIZE, NODE_NUMBER)
-    # get file sha1 to check the random data same 
+    # get file sha1 to check the random data same
     comment = "sha1sum " + RANDOM_FILE
-    sha1sum = os.popen( comment ).readline().replace('\n', '')
+    sha1sum = os.popen(comment).readline().replace('\n', '')
 
     # assume we already have all nodes at first time
     chord = chord.Chord(nodes, ID_SIZE)
@@ -43,26 +43,26 @@ if __name__ == "__main__":
     count = dict()
 
     # no matter what node start, get same answer
-    node_index = nodes[ randint(0, NODE_NUMBER-1) ]
-    node = chord.chord[ node_index ]
-    print( "start node:", node )
-    for i in range(1,11):
+    node_index = nodes[randint(0, NODE_NUMBER-1)]
+    node = chord.chord[node_index]
+    print("start node:", node)
+    for i in range(1, 11):
         file_count = i*10 * NODE_NUMBER
         print("numK:", file_count)
-        bar = ProgressBar(total = file_count)
+        bar = ProgressBar(total=file_count)
 
         # clear count
         for j in nodes:
             count[j] = 0
 
         for _ in range(file_count):
-            file_key = randint(0, ID_SIZE-1)          
+            file_key = randint(0, ID_SIZE-1)
             addr, record = node.search(file_key, list())
 
-            logs.debug( node, "find", file_key, ">> ")
+            logs.debug(node, "find", file_key, ">> ")
             logs.debug("\tnode:", addr, " record:", record)
 
-            # use random list `nodes` mapping 
+            # use random list `nodes` mapping
             count[addr] += 1
 
             bar.log()
@@ -71,9 +71,9 @@ if __name__ == "__main__":
         ans = sorted(count.items(), key=operator.itemgetter(1))
 
         max = ans[0][1]
-        mid = ans[ NODE_NUMBER//2 ][1]
-        min = ans[ NODE_NUMBER-1 ][1]
-        
+        mid = ans[NODE_NUMBER//2][1]
+        min = ans[NODE_NUMBER-1][1]
+
         print(max, mid, min)
 
     #######################
@@ -83,15 +83,15 @@ if __name__ == "__main__":
 
     hops = [0] * int(log(ID_SIZE, 2))
 
-    bar = ProgressBar(total = 100*NODE_NUMBER)
+    bar = ProgressBar(total=100*NODE_NUMBER)
     for i in nodes:
-        node = chord.chord[ i ]
+        node = chord.chord[i]
         for j in range(100):
             k = randint(0, ID_SIZE-1)
-            addr, record = node.search(k, [])            
+            addr, record = node.search(k, [])
 
             hops_num = len(record)-1
-            hops[ hops_num ] += 1
+            hops[hops_num] += 1
 
             bar.log()
 

@@ -1,12 +1,14 @@
 # -*- coding:utf-8 -*-
-import sys, time
+import sys
+import time
+
 
 class ProgressBar:
-    def __init__(self, count = 0, total = 0, width = 50, show=False):
+    def __init__(self, count=0, total=0, width=50, show=False):
         self.count = count
         self.total = total
         self.width = width
-        self.show  = show
+        self.show = show
 
     def log(self, s='', print_end=''):
 
@@ -15,7 +17,7 @@ class ProgressBar:
 
         sys.stdout.write(' '*(self.width + 13) + '\r')
         sys.stdout.flush()
-        print (s, end=print_end)
+        print(s, end=print_end)
         progress = (int)(self.width * self.count / self.total)
         sys.stdout.write('{0:5}/{1:5}: '.format(self.count, self.total))
         sys.stdout.write('#' * progress + '-' * (self.width - progress) + '\r')
@@ -26,7 +28,7 @@ class ProgressBar:
 
 
 if __name__ == "__main__":
-    bar = ProgressBar(total = 1000)
+    bar = ProgressBar(total=1000)
     for i in range(1000):
         # bar.log('We have arrived at: ' + str(i + 1))
         bar.log()

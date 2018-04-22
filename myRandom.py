@@ -1,6 +1,7 @@
 import os.path
 from random import randint
 
+
 def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
     nodeList = list()
     while True:
@@ -12,7 +13,7 @@ def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
                 # file already exist, and its number of line is true
                 with open(fileName) as f:
                     for num in f:
-                        nodeList.append( int(num) )
+                        nodeList.append(int(num))
                 f.close()
                 return nodeList
 
@@ -21,12 +22,12 @@ def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
             n = randint(0, IdSize-1)
             if n not in nodeList:
                 nodeList.append(n)
-            # else: 
+            # else:
                 # number repeated, ignore the num
 
         f = open(fileName, 'a')
         for i in range(nodeNumber):
-            f.write( str( nodeList[i] ) + "\n" )
+            f.write(str(nodeList[i]) + "\n")
         f.close()
         return nodeList
 
@@ -37,7 +38,7 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
-        
+
 
 if __name__ == "__main__":
     random_file()

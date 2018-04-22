@@ -1,5 +1,6 @@
 import sys
 
+
 class Log():
     def __init__(self, enable=True):
         self._enable = enable
@@ -13,7 +14,7 @@ class Log():
     def log(self, *objects, mark='', sep=' ', end='\n', file=sys.stdout, flush=False):
         if self.get_enable():
             print(mark, *objects, sep=sep, end=end, file=file, flush=flush)
-            
+
     def debug(self, *objects, sep=' ', end='\n', file=sys.stdout, flush=False):
         self.log('[DEBUG]', *objects, sep=sep, end=end, file=file, flush=flush)
 
@@ -23,4 +24,4 @@ if __name__ == '__main__':
 
     log.debug('hello world')    # print [DEBUG] hello world
     log.switcher(enable=False)
-    log.debug('hello world 2')  # no print 
+    log.debug('hello world 2')  # no print

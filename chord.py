@@ -5,23 +5,24 @@ from log import Log
 ENABLE_LOG = False
 logs = Log(ENABLE_LOG)
 
+
 class Chord:
     def __init__(self, int_nodeList, ID_SIZE):
         print("init chord...")
-        bar = ProgressBar(total = len(int_nodeList))
+        bar = ProgressBar(total=len(int_nodeList))
 
         self.node_list = sorted(int_nodeList)
 
-        #create Node object
+        # create Node object
         self.chord = OrderedDict()
         for num in self.node_list:
-            self.chord[num] = Node(num, self) 
+            self.chord[num] = Node(num, self)
             bar.log()
 
         print("done.")
 
         self.total = len(self.chord)
-        
+
         # size of chord
         self.SIZE = ID_SIZE
 
@@ -31,7 +32,7 @@ class Chord:
     # find predecessor and successor
     def set_neighbor(self):
         print("set neighbor...")
-        bar = ProgressBar(total = self.total)
+        bar = ProgressBar(total=self.total)
 
         first = None
         previous = None
@@ -42,20 +43,20 @@ class Chord:
             elif previous != None:
                 # set the previous of now Node
                 now.predecessor = previous
-                # set the next of previous Node 
+                # set the next of previous Node
                 previous.successor = now
             previous = now
             bar.log()
 
-        # next of last node is first node 
-        previous.successor = first 
+        # next of last node is first node
+        previous.successor = first
         # pre of first node is last node
-        first.predecessor = previous 
+        first.predecessor = previous
         print("done.")
 
     def creat_finger_table(self):
         print("creat_finger_table...")
-        bar = ProgressBar(total = self.total)
+        bar = ProgressBar(total=self.total)
 
         # finger list is like [1, 2, 4, 8...]
         finger = list()
@@ -74,7 +75,7 @@ class Chord:
                 for _, node in self.chord.items():
                     if first_address is None:
                         first_address = node.address
-                    if node.address >= target and node.address is not now.address :
+                    if node.address >= target and node.address is not now.address:
                         now.finger_table[i] = node.address
                         finded_flag = True
                         break
@@ -82,6 +83,7 @@ class Chord:
                     now.finger_table[i] = first_address
             bar.log()
 #####################
+
 
 class Node:
     def __init__(self, address, chord):
@@ -98,28 +100,28 @@ class Node:
 
     # return a address of the node which manage the file
     def search(self, target, record):
-        logs.log("\tenter",self.address)
+        logs.log("\tenter", self.address)
         chrod_size = self.parent_chord.SIZE
 
         # record now
         record.append(self.address)
 
 #  debug
-        if (len(record) > 32): 
+        if (len(record) > 32):
             logs.debug(">>> not good at find [", target, "]")
             logs.debug(record)
             return None, None
 #  end debug
 
         # check match
-        logs.debug("[self]", end=" ")        
+        logs.debug("[self]", end=" ")
         if self.at_cover_range(target):
             return self.address, record
 
         # target file is in finger table
         for address in self.finger_table.values():
             if address == target:
-                return address, record  
+                return address, record
 
         # search next node form finger table
         previous_address = None
@@ -128,20 +130,20 @@ class Node:
                 A = address
                 B = previous_address
 
-                # check 
+                # check
                 logs.debug("[fing]", end=" ")
                 if at_range(A, B, target):
-                    the_node = self.get_node(B) 
+                    the_node = self.get_node(B)
                     return the_node.search(target, record)
 
             previous_address = address
 
         # it mean last one
-        the_node =  self.get_node(previous_address)
+        the_node = self.get_node(previous_address)
         return the_node.search(target, record)
 
-    def at_cover_range(self, target):    
-        now  = self.address
+    def at_cover_range(self, target):
+        now = self.address
         next = self.successor.address
         return at_range(next, now, target)
 
@@ -154,22 +156,23 @@ def at_range(A, B, target):
     logs.log("is {} in {} to {}?".format(target, A, B), end='')
     if A > B:
         if B <= target and target < A:
-            logs.log("YES")                
+            logs.log("YES")
             return True
     elif B > A:
         if A > target or target >= B:
-            logs.log("YES")    
+            logs.log("YES")
             return True
 
     logs.log("NO")
     return False
+
 
 if __name__ == "__main__":
     LOG_SWITCH = True
     log = Log(LOG_SWITCH)
 
     nodes = [1, 8, 14, 21, 32, 38, 42, 48, 51, 56]
-    
+
     c = Chord(nodes, 2**6)
 
     for key, node in c.chord.items():
