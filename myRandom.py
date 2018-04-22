@@ -2,7 +2,7 @@ import os.path
 from random import randint
 
 
-def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
+def random_file(fileName, IdSize, nodeNumber):
     nodeList = list()
     while True:
         # clear list
@@ -23,7 +23,7 @@ def random_file(fileName='random.txt', IdSize=2**32, nodeNumber=10000):
             if n not in nodeList:
                 nodeList.append(n)
             # else:
-                # number repeated, ignore the num
+                # number repeated, ignore the num (just do noting)
 
         f = open(fileName, 'a')
         for i in range(nodeNumber):
@@ -38,8 +38,3 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
-
-
-if __name__ == "__main__":
-    random_file()
-    print("set random file, done.")

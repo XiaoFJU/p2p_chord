@@ -1,9 +1,5 @@
 from collections import OrderedDict
 from progressBar import ProgressBar
-from log import Log
-
-ENABLE_LOG = False
-logs = Log(ENABLE_LOG)
 
 
 class Chord:
@@ -17,7 +13,7 @@ class Chord:
         self.chord = OrderedDict()
         for num in self.node_list:
             self.chord[num] = Node(num, self)
-            bar.log()
+            bar.next()
 
         print("done.")
 
@@ -46,7 +42,7 @@ class Chord:
                 # set the next of previous Node
                 previous.successor = now
             previous = now
-            bar.log()
+            bar.next()
 
         # next of last node is first node
         previous.successor = first
@@ -65,7 +61,6 @@ class Chord:
             finger.append(i)
             i *= 2
 
-### 可能需要想想別的 ###
         for _, now in self.chord.items():
             for i in finger:
                 target = (i + now.address) % self.SIZE
@@ -81,8 +76,7 @@ class Chord:
                         break
                 if not finded_flag:
                     now.finger_table[i] = first_address
-            bar.log()
-#####################
+            bar.next()
 
 
 class Node:
@@ -100,21 +94,12 @@ class Node:
 
     # return a address of the node which manage the file
     def search(self, target, record):
-        logs.log("\tenter", self.address)
         chrod_size = self.parent_chord.SIZE
 
         # record now
         record.append(self.address)
 
-#  debug
-        if (len(record) > 32):
-            logs.debug(">>> not good at find [", target, "]")
-            logs.debug(record)
-            return None, None
-#  end debug
-
         # check match
-        logs.debug("[self]", end=" ")
         if self.at_cover_range(target):
             return self.address, record
 
@@ -131,7 +116,6 @@ class Node:
                 B = previous_address
 
                 # check
-                logs.debug("[fing]", end=" ")
                 if at_range(A, B, target):
                     the_node = self.get_node(B)
                     return the_node.search(target, record)
@@ -153,35 +137,11 @@ class Node:
 
 
 def at_range(A, B, target):
-    logs.log("is {} in {} to {}?".format(target, A, B), end='')
     if A > B:
         if B <= target and target < A:
-            logs.log("YES")
             return True
     elif B > A:
         if A > target or target >= B:
-            logs.log("YES")
             return True
 
-    logs.log("NO")
     return False
-
-
-if __name__ == "__main__":
-    LOG_SWITCH = True
-    log = Log(LOG_SWITCH)
-
-    nodes = [1, 8, 14, 21, 32, 38, 42, 48, 51, 56]
-
-    c = Chord(nodes, 2**6)
-
-    for key, node in c.chord.items():
-        print("[ node", node, " ]")
-        print("finger_table\n\t", node.finger_table)
-
-        target = 54
-        print("find", target, ">> ")
-        n, record = node.search(target, [])
-        print("\tnode:", n, " record:", record)
-
-        print("----------")

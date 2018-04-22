@@ -4,14 +4,13 @@ import time
 
 
 class ProgressBar:
-    def __init__(self, count=0, total=0, width=50, show=False):
+    def __init__(self, count=0, total=0, window_width=50, show=False):
         self.count = count
         self.total = total
-        self.width = width
+        self.width = window_width
         self.show = show
 
-    def log(self, s='', print_end=''):
-
+    def next(self, s='', print_end=''):
         # move to next
         self.count += 1
 

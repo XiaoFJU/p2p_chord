@@ -1,39 +1,33 @@
-import os
-import sys
 import operator
 from random import randint
 from math import log
 
-import chord
+import chord as _chord
 import myRandom
 from log import Log
 from progressBar import ProgressBar
 
 
 # static value
+ENABLE_LOG = False
+logs = Log(ENABLE_LOG)
+
 RANDOM_FILE = 'random.txt'
 ID_SIZE = 2**32
 NODE_NUMBER = 10000
-ENABLE_LOG = False
 
 # RANDOM_FILE = '100.txt'
 # ID_SIZE = 2**10
 # NODE_NUMBER = 100
 
-if __name__ == "__main__":
-    logs = Log(ENABLE_LOG)
+
+def main():
 
     # if file not exist, create it.
     nodes = myRandom.random_file(RANDOM_FILE, ID_SIZE, NODE_NUMBER)
-    # get file sha1 to check the random data same
-    comment = "sha1sum " + RANDOM_FILE
-    sha1sum = os.popen(comment).readline().replace('\n', '')
 
     # assume we already have all nodes at first time
-    chord = chord.Chord(nodes, ID_SIZE)
-
-    for i in sorted(nodes):
-        print(i, end='')
+    chord = _chord.Chord(nodes, ID_SIZE)
 
     #################################
     # Q1: 每一個節點所需負責之key值個數  #
@@ -65,7 +59,7 @@ if __name__ == "__main__":
             # use random list `nodes` mapping
             count[addr] += 1
 
-            bar.log()
+            bar.next()
 
         # cacalculate ans
         ans = sorted(count.items(), key=operator.itemgetter(1))
@@ -93,7 +87,11 @@ if __name__ == "__main__":
             hops_num = len(record)-1
             hops[hops_num] += 1
 
-            bar.log()
+            bar.next()
 
-    print(hops)
-    print([x/(100*NODE_NUMBER) for x in hops])
+    print("total hops:\n", hops)
+    print("proportion of total hops:\n", [x/(100*NODE_NUMBER) for x in hops])
+
+
+if __name__ == "__main__":
+    main()
